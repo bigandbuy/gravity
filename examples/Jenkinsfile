@@ -1,0 +1,113 @@
+pipeline {
+  agent {
+    dockerfile {
+      // label 'tele-buildbox:latest'
+      // 'tele-buildbox:latest'
+      additionalBuildArgs '--build-arg TELE_VERSION=7.0.23'
+      dir 'examples'
+      args '-v /tmp:/tmp'
+      args '-v /tmp/tele-cache:/mnt/tele-cache'
+      args '-v /var/run/docker.sock:/var/run/docker.sock'
+      args '-v $(pwd):/mnt/app'
+      args '-w /mnt/cluster'
+      args '--net=host'
+    //   args '-u root:root'
+      label 'master'
+    }
+
+  }
+  stages {
+    // stage('Test') {
+    //   steps {
+    //     sh 'git --version'
+    //     sh 'curl --version'
+    //   }
+    // }
+
+    stage('Checkout') {
+      steps {
+        //git credentialsId: '8140c26b-1d8d-40d0-bc2a-3f56672f8e57', url: 'https://github.com/PrashantBhatasana/terraform-jenkins-ec2'
+        // git url: 'https://github.com/gravitational/gravity.git'
+        // git credentialsId: '8140c26b-1d8d-40d0-bc2a-3f56672f8e57', url: 'git@github.com:taskworld/fluxcd-resources.git'
+      }
+    }
+
+    stage('Build') {
+      // agent {
+      //   docker {
+      //     image 'tele-buildbox:latest'
+      //     args '-v /tmp/tele-cache:/mnt/tele-cache'
+      //     args '-v /var/run/docker.sock:/var/run/docker.sock'
+      //     args '-v $(pwd):/mnt/app'
+      //     args '-w /mnt/cluster'
+      //     args '--net=host'
+      //     reuseNode true
+      //   }
+      // }
+      steps {
+        script {
+          // withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: '45724b41-600e-49d0-843d-83a99618eb26', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+            // bash -c "tele --state-dir=/mnt/tele-cache build -o cluster.tar overlays/onprem/vpc-grvty.taskworld.com"
+            sh 'tele version'
+            sh 'ls -l'
+            // sh 'docker'
+            // sh 'tele --state-dir=/mnt/tele-cache build -o wordpress.tar /mnt/app/gravity/examples/wordpress/resources/app.yaml'
+            // kubectl
+            // docker info
+            sh 'docker info'
+            // sh 'curl -XPOST --unix-socket /var/run/docker.sock -d \'{"Image":"nginx"}\' -H \'Content-Type: application/json\' http://localhost/containers/create'
+            // sh 'tele build -vo onpremise.tar overlays/onprem/taskworld.rolex.com/app.yaml'
+            sh 'tele build -vo wordpress.tar examples/wordpress/resources/app.yaml'
+            // sh("ssh root@my.server.com \"su user -c \\\"mkdir ${newDirName}\\\"\"")
+            // sh 'tele build -o wordpress.tar examples/wordpress/resources/app.yaml'
+          }
+
+        }
+
+      }
+
+      // post {
+      //     always {
+      //         archiveArtifacts artifacts: '**/output/**'
+      //     }
+      // }
+
+    }
+
+    stage('Deploy'){
+        steps {
+            // withAWS step provides authorization for the nested steps
+            // withAWS(region: 'ap-southeast-1', credentials: '92d5813a-400c-40a8-a000-61cbc587d2be') {
+                // Upload a file/folder from the workspace to an S3 bucket
+                // s3Upload(bucket: 'docs.internal.taskworld.net', workingDir:'output', includePathPattern:'**/*')
+            }
+        }
+    }
+
+  }
+
+  // post {
+  //   always {
+  //     archiveArtifacts artifacts: 'build/libs/**/*.jar', fingerprint: true
+  //     junit 'build/reports/**/*.xml'
+  //   }
+  // }
+
+  post {
+      always {
+          echo 'One way or another, I have finished'
+          deleteDir() /* clean up our workspace */
+      }
+      success {
+        slackSend channel: '#onpremise',
+                  color: 'good',
+                  message: "The pipeline ${currentBuild.fullDisplayName} completed successfully."
+          echo 'I succeeeded!'
+      }
+      failure {
+          echo 'I failed :('
+      }
+  }
+
+
+}
