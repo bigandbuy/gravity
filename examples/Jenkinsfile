@@ -60,7 +60,7 @@ pipeline {
             sh 'tele build -vo wordpress.tar examples/wordpress/resources/app.yaml'
             // sh("ssh root@my.server.com \"su user -c \\\"mkdir ${newDirName}\\\"\"")
             // sh 'tele build -o wordpress.tar examples/wordpress/resources/app.yaml'
-          }
+          // }
 
         }
 
