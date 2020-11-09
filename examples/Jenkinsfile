@@ -29,6 +29,7 @@ pipeline {
         //git credentialsId: '8140c26b-1d8d-40d0-bc2a-3f56672f8e57', url: 'https://github.com/PrashantBhatasana/terraform-jenkins-ec2'
         // git url: 'https://github.com/gravitational/gravity.git'
         // git credentialsId: '8140c26b-1d8d-40d0-bc2a-3f56672f8e57', url: 'git@github.com:taskworld/fluxcd-resources.git'
+        echo 'Checkout'
       }
     }
 
@@ -81,6 +82,7 @@ pipeline {
                 // Upload a file/folder from the workspace to an S3 bucket
                 // s3Upload(bucket: 'docs.internal.taskworld.net', workingDir:'output', includePathPattern:'**/*')
             // }
+            echo 'Deploy'
         }
     }
 
