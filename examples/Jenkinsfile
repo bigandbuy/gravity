@@ -12,7 +12,7 @@ pipeline {
       args '-w /mnt/cluster'
       args '--net=host'
     //   args '-u root:root'
-      label 'master'
+      // label 'master'
     }
 
   }
